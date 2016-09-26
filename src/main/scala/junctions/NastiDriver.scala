@@ -12,7 +12,6 @@ class NastiDriver(dataWidth: Int, burstLen: Int, nBursts: Int)
   }
 
   val dataBytes = dataWidth / 8
-  val nastiDataBytes = nastiXDataBits / 8
 
   val (write_cnt, write_done) = Counter(io.nasti.w.fire(), burstLen)
   val (read_cnt, read_done) = Counter(io.nasti.r.fire(), burstLen)
@@ -67,7 +66,7 @@ class NastiDriver(dataWidth: Int, burstLen: Int, nBursts: Int)
   when (reqs_done) { state := s_done }
 
   val full_addr = req_addr + (read_cnt << UInt(log2Up(dataBytes)))
-  val byteshift = full_addr(log2Up(nastiDataBytes) - 1, 0)
+  val byteshift = full_addr(log2Up(nastiXDataBytes) - 1, 0)
   val bitshift = Cat(byteshift, UInt(0, 3))
   val read_data = (io.nasti.r.bits.data >> bitshift) & Fill(dataWidth, UInt(1, 1))
 

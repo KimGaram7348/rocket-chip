@@ -208,14 +208,14 @@ class PutMaskDriver(minBytes: Int = 1)(implicit p: Parameters) extends Driver()(
   val state = Reg(init = s_idle)
   val nbytes = Reg(UInt(width = log2Up(tlWriteMaskBits) + 1))
   val wmask = (UInt(1) << nbytes) - UInt(1)
-  val wdata = Fill(tlDataBits / 8, Wire(UInt(width = 8), init = nbytes))
+  val wdata = Fill(tlDataBytes, Wire(UInt(width = 8), init = nbytes))
   // TL data bytes down to minBytes logarithmically by 2
-  val expected = (log2Ceil(tlDataBits / 8) to log2Ceil(minBytes) by -1)
+  val expected = (log2Ceil(tlDataBytes) to log2Ceil(minBytes) by -1)
     .map(1 << _).foldLeft(UInt(0, tlDataBits)) {
       // Change the lower nbytes of the value
       (value, nbytes) => {
         val mask = UInt((BigInt(1) << (nbytes * 8)) - BigInt(1), tlDataBits)
-        val wval = Fill(tlDataBits / 8, UInt(nbytes, 8))
+        val wval = Fill(tlDataBytes, UInt(nbytes, 8))
         (value & ~mask) | (wval & mask)
       }
     }

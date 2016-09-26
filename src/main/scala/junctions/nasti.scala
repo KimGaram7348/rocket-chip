@@ -15,7 +15,8 @@ trait HasNastiParameters {
   implicit val p: Parameters
   val nastiExternal = p(NastiKey)
   val nastiXDataBits = nastiExternal.dataBits
-  val nastiWStrobeBits = nastiXDataBits / 8
+  val nastiXDataBytes = nastiXDataBits / 8
+  val nastiWStrobeBits = nastiXDataBytes
   val nastiXAddrBits = nastiExternal.addrBits
   val nastiWIdBits = nastiExternal.idBits
   val nastiRIdBits = nastiExternal.idBits

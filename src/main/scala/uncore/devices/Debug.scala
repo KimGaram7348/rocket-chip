@@ -824,11 +824,10 @@ class DebugModule ()(implicit val p:cde.Parameters)
   if (cfg.hasDebugRom) {
     // Inspired by ROMSlave
     val romContents = cfg.debugRomContents.get
-    val romByteWidth = tlDataBits / 8
-    val romRows = (romContents.size + romByteWidth - 1)/romByteWidth
+    val romRows = (romContents.size + tlDataBytes - 1)/tlDataBytes
     val romMem = Vec.tabulate(romRows) { ii =>
-      val slice = romContents.slice(ii*romByteWidth, (ii+1)*romByteWidth)
-      UInt(slice.foldRight(BigInt(0)) { case (x,y) => ((y << 8) + (x.toInt & 0xFF))}, width = romByteWidth*8)
+      val slice = romContents.slice(ii*tlDataBytes, (ii+1)*tlDataBytes)
+      UInt(slice.foldRight(BigInt(0)) { case (x,y) => ((y << 8) + (x.toInt & 0xFF))}, width = tlDataBytes*8)
     }
 
     val sbRomRdAddr = Wire(UInt())

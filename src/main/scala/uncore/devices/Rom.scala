@@ -59,11 +59,10 @@ class ROMSlave(contents: Seq[Byte])(implicit val p: Parameters) extends Module
   when (io.grant.fire()) { addr_beat := addr_beat + UInt(1) }
   when (io.acquire.fire()) { addr_beat := io.acquire.bits.addr_beat }
 
-  val byteWidth = tlDataBits / 8
-  val rows = (contents.size + byteWidth - 1)/byteWidth
+  val rows = (contents.size + tlDataBytes - 1)/tlDataBytes
   val rom = Vec.tabulate(rows) { i =>
-    val slice = contents.slice(i*byteWidth, (i+1)*byteWidth)
-    UInt(slice.foldRight(BigInt(0)) { case (x,y) => (y << 8) + (x.toInt & 0xFF) }, byteWidth*8)
+    val slice = contents.slice(i*tlDataBytes, (i+1)*tlDataBytes)
+    UInt(slice.foldRight(BigInt(0)) { case (x,y) => (y << 8) + (x.toInt & 0xFF) }, tlDataBytes*8)
   }
   val raddr = Cat(acq.bits.addr_block, addr_beat)
   val rdata = rom(if (rows == 1) UInt(0) else raddr(log2Up(rom.size)-1,0))
@@ -99,7 +98,8 @@ class ROMSlaveTest(implicit p: Parameters) extends UnitTest {
   io.finished := driver.io.finished
 }
 
-class NastiROM(contents: Seq[Byte])(implicit p: Parameters) extends Module {
+class NastiROM(contents: Seq[Byte])(implicit val p: Parameters)
+    extends Module with HasNastiParameters {
   val io = new NastiIO().flip
   val ar = Queue(io.ar, 1)
 
@@ -111,13 +111,12 @@ class NastiROM(contents: Seq[Byte])(implicit p: Parameters) extends Module {
   io.w.ready := Bool(false)
   io.b.valid := Bool(false)
 
-  val byteWidth = io.r.bits.nastiXDataBits / 8
-  val rows = (contents.size + byteWidth - 1)/byteWidth
+  val rows = (contents.size + nastiXDataBytes - 1)/nastiXDataBytes
   val rom = Vec.tabulate(rows) { i =>
-    val slice = contents.slice(i*byteWidth, (i+1)*byteWidth)
-    UInt(slice.foldRight(BigInt(0)) { case (x,y) => (y << 8) + (x.toInt & 0xFF) }, byteWidth*8)
+    val slice = contents.slice(i*nastiXDataBytes, (i+1)*nastiXDataBytes)
+    UInt(slice.foldRight(BigInt(0)) { case (x,y) => (y << 8) + (x.toInt & 0xFF) }, nastiXDataBytes*8)
   }
-  val rdata = rom(if (rows == 1) UInt(0) else ar.bits.addr(log2Up(contents.size)-1,log2Up(byteWidth)))
+  val rdata = rom(if (rows == 1) UInt(0) else ar.bits.addr(log2Up(contents.size)-1,log2Up(nastiXDataBytes)))
 
   io.r <> ar
   io.r.bits := NastiReadDataChannel(ar.bits.id, rdata)

@@ -18,8 +18,6 @@ class NastiGenerator(id: Int)(implicit val p: Parameters) extends Module
     val mem = new NastiIO
   }
 
-  val nastiBytes = nastiXDataBits / 8
-
   val (s_start :: s_write_addr :: s_write_data ::
        s_read  :: s_wait :: s_finish :: Nil) = Enum(Bits(), 6)
   val state = Reg(init = s_start)
@@ -37,7 +35,7 @@ class NastiGenerator(id: Int)(implicit val p: Parameters) extends Module
   val (write_idx, write_done) = Counter(io.mem.w.fire(), maxRequests)
   val write_addr = UInt(startAddress) + Cat(write_idx, part_of_addr)
   val write_data = Fill(nastiXDataBits / genWordBits, ref_data(write_idx))
-  val write_align = write_addr(log2Up(nastiBytes) - 1, 0)
+  val write_align = write_addr(log2Up(nastiXDataBytes) - 1, 0)
   val write_mask = UInt((1 << genWordBytes) - 1, nastiWStrobeBits) << write_align
 
   val (read_idx, read_done) = Counter(io.mem.ar.fire(), maxRequests)
@@ -70,7 +68,7 @@ class NastiGenerator(id: Int)(implicit val p: Parameters) extends Module
 
   val (read_resp_idx,  read_resp_done)  = Counter(io.mem.r.fire(), maxRequests)
   val read_resp_addr = UInt(startAddress) + Cat(read_resp_idx, part_of_addr)
-  val read_offset = read_resp_addr(log2Up(nastiXDataBits / 8) - 1, 0)
+  val read_offset = read_resp_addr(log2Up(nastiXDataBytes) - 1, 0)
   val read_shift = Cat(read_offset, UInt(0, 3))
   val read_data = (io.mem.r.bits.data >> read_shift)(genWordBits - 1, 0)
 
