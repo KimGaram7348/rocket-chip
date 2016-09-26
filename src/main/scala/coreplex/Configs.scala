@@ -12,7 +12,7 @@ import uncore.converters._
 import rocket._
 import rocket.Util._
 import util.ConfigUtils._
-import rocketchip.{GlobalAddrMap, NCoreplexExtClients}
+import rocketchip.{GlobalAddrMap, NCoreplexExtClients, MIFDataBeats}
 import cde.{Parameters, Config, Dump, Knob, CDEMatchError}
 
 class BaseCoreplexConfig extends Config (

@@ -10,7 +10,6 @@ import cde.Parameters
 
 class NastiGenerator(id: Int)(implicit val p: Parameters) extends Module
     with HasNastiParameters
-    with HasMIFParameters
     with HasAddrMapParameters
     with HasTrafficGeneratorParameters {
 
@@ -19,7 +18,7 @@ class NastiGenerator(id: Int)(implicit val p: Parameters) extends Module
     val mem = new NastiIO
   }
 
-  val mifDataBytes = mifDataBits / 8
+  val nastiBytes = nastiXDataBits / 8
 
   val (s_start :: s_write_addr :: s_write_data ::
        s_read  :: s_wait :: s_finish :: Nil) = Enum(Bits(), 6)
@@ -37,8 +36,8 @@ class NastiGenerator(id: Int)(implicit val p: Parameters) extends Module
 
   val (write_idx, write_done) = Counter(io.mem.w.fire(), maxRequests)
   val write_addr = UInt(startAddress) + Cat(write_idx, part_of_addr)
-  val write_data = Fill(mifDataBits / genWordBits, ref_data(write_idx))
-  val write_align = write_addr(log2Up(mifDataBytes) - 1, 0)
+  val write_data = Fill(nastiXDataBits / genWordBits, ref_data(write_idx))
+  val write_align = write_addr(log2Up(nastiBytes) - 1, 0)
   val write_mask = UInt((1 << genWordBytes) - 1, nastiWStrobeBits) << write_align
 
   val (read_idx, read_done) = Counter(io.mem.ar.fire(), maxRequests)
