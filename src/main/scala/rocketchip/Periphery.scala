@@ -17,10 +17,8 @@ import rocket.XLen
 import scala.math.max
 import coreplex._
 
-case object MIFAddrBits extends Field[Int]
-case object MIFDataBits extends Field[Int]
-case object MIFTagBits extends Field[Int]
-case object MIFDataBeats extends Field[Int]
+case object ExtMemDataBits extends Field[Int]
+case object ExtMemTagBits extends Field[Int]
 
 /** Options for memory bus interface */
 object BusType {

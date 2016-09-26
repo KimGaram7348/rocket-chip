@@ -27,17 +27,14 @@ class BasePlatformConfig extends Config(
       lazy val innerDataBeats = (8 * site(CacheBlockBytes)) / innerDataBits
       pname match {
         //Memory Parameters
-        case MIFTagBits => Dump("MIF_TAG_BITS", 5)
-        case MIFDataBits => Dump("MIF_DATA_BITS", 64)
-        case MIFAddrBits => Dump("MIF_ADDR_BITS",
-                                 site(PAddrBits) - site(CacheBlockOffsetBits))
-        case MIFDataBeats => site(CacheBlockBytes) * 8 / site(MIFDataBits)
+        case ExtMemTagBits => Dump("MEM_TAG_BITS", 5)
+        case ExtMemDataBits => Dump("MEM_DATA_BITS", 64)
         case NastiKey => {
-          Dump("MEM_STRB_BITS", site(MIFDataBits) / 8)
+          Dump("MEM_STRB_BITS", site(ExtMemDataBits) / 8)
           NastiParameters(
-            dataBits = Dump("MEM_DATA_BITS", site(MIFDataBits)),
+            dataBits = Dump("MEM_DATA_BITS", site(ExtMemDataBits)),
             addrBits = Dump("MEM_ADDR_BITS", site(PAddrBits)),
-            idBits = Dump("MEM_ID_BITS", site(MIFTagBits)))
+            idBits = Dump("MEM_ID_BITS", site(ExtMemTagBits)))
         }
         case BuildCoreplex =>
           (c: CoreplexConfig, p: Parameters) => uncore.tilelink2.LazyModule(new DefaultCoreplex(c)(p)).module
@@ -144,16 +141,16 @@ class DualChannelDualBankL2Config extends Config(
 
 class RoccExampleConfig extends Config(new WithRoccExample ++ new BaseConfig)
 
-class WithMIFDataBits(n: Int) extends Config(
+class WithMemDataBits(n: Int) extends Config(
   (pname, site, here) => pname match {
-    case MIFDataBits => Dump("MIF_DATA_BITS", n)
+    case ExtMemDataBits => Dump("MEM_DATA_BITS", n)
     case _ => throw new CDEMatchError
   })
 
-class MIF128BitConfig extends Config(
-  new WithMIFDataBits(128) ++ new BaseConfig)
-class MIF32BitConfig extends Config(
-  new WithMIFDataBits(32) ++ new BaseConfig)
+class Mem128BitConfig extends Config(
+  new WithMemDataBits(128) ++ new BaseConfig)
+class Mem32BitConfig extends Config(
+  new WithMemDataBits(32) ++ new BaseConfig)
 
 class SmallL2Config extends Config(
   new WithNMemoryChannels(2) ++ new WithNBanksPerMemChannel(4) ++

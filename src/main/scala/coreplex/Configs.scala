@@ -12,7 +12,7 @@ import uncore.converters._
 import rocket._
 import rocket.Util._
 import util.ConfigUtils._
-import rocketchip.{GlobalAddrMap, NCoreplexExtClients, MIFDataBeats}
+import rocketchip.{GlobalAddrMap, NCoreplexExtClients, ExtMemDataBits}
 import cde.{Parameters, Config, Dump, Knob, CDEMatchError}
 
 class BaseCoreplexConfig extends Config (
@@ -21,6 +21,8 @@ class BaseCoreplexConfig extends Config (
     def findBy(sname:Any):Any = here[PF](site[Any](sname))(pname)
     lazy val innerDataBits = site(XLen)
     lazy val innerDataBeats = (8 * site(CacheBlockBytes)) / innerDataBits
+    lazy val outerDataBits = site(ExtMemDataBits)
+    lazy val outerDataBeats = (8 * site(CacheBlockBytes)) / outerDataBits
     pname match {
       //Memory Parameters
       case PAddrBits => 32
@@ -140,7 +142,7 @@ class BaseCoreplexConfig extends Config (
       case TLKey("Outermost") => site(TLKey("L2toMC")).copy(
         maxClientXacts = site(NAcquireTransactors) + 2,
         maxClientsPerPort = site(NBanksPerMemoryChannel),
-        dataBeats = site(MIFDataBeats))
+        dataBeats = outerDataBeats)
       case TLKey("L2toMMIO") => {
         TileLinkParameters(
           coherencePolicy = new MICoherence(
@@ -154,7 +156,7 @@ class BaseCoreplexConfig extends Config (
           dataBeats = innerDataBeats,
           dataBits = site(CacheBlockBytes) * 8)
       }
-      case TLKey("MMIO_Outermost") => site(TLKey("L2toMMIO")).copy(dataBeats = site(MIFDataBeats))
+      case TLKey("MMIO_Outermost") => site(TLKey("L2toMMIO")).copy(dataBeats = outerDataBeats)
 
       case BootROMFile => "./bootrom/bootrom.img"
       case NTiles => 1

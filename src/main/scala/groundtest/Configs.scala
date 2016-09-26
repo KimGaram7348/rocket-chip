@@ -64,15 +64,15 @@ class TraceGenL2Config extends Config(
   new WithNL2Ways(1) ++ new WithL2Capacity(32 * 64 / 1024) ++
   new WithL2Cache ++ new TraceGenConfig)
 
-class MIF128BitComparatorConfig extends Config(
-  new WithMIFDataBits(128) ++ new ComparatorConfig)
-class MIF128BitMemtestConfig extends Config(
-  new WithMIFDataBits(128) ++ new MemtestConfig)
+class Mem128BitComparatorConfig extends Config(
+  new WithMemDataBits(128) ++ new ComparatorConfig)
+class Mem128BitMemtestConfig extends Config(
+  new WithMemDataBits(128) ++ new MemtestConfig)
 
-class MIF32BitComparatorConfig extends Config(
-  new WithMIFDataBits(32) ++ new ComparatorConfig)
-class MIF32BitMemtestConfig extends Config(
-  new WithMIFDataBits(32) ++ new MemtestConfig)
+class Mem32BitComparatorConfig extends Config(
+  new WithMemDataBits(32) ++ new ComparatorConfig)
+class Mem32BitMemtestConfig extends Config(
+  new WithMemDataBits(32) ++ new MemtestConfig)
 
 class PCIeMockupTestConfig extends Config(
   new WithPCIeMockupTest ++ new GroundTestConfig)
@@ -239,7 +239,7 @@ class WithTraceGen extends Config(
       val nSets = 32 // L2 NSets
       val nWays = 1
       val blockOffset = site(CacheBlockOffsetBits)
-      val nBeats = site(MIFDataBeats)
+      val nBeats = site(TLKey("L1toL2")).dataBeats
       List.tabulate(4 * nWays) { i =>
         Seq.tabulate(nBeats) { j => BigInt((j * 8) + ((i * nSets) << blockOffset)) }
       }.flatten
